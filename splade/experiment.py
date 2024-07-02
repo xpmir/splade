@@ -22,13 +22,16 @@ from xpmir.letor.learner import ValidationListener
 from xpmir.letor.samplers import PairwiseInBatchNegativesSampler
 from xpmir.letor.trainers.batchwise import (BatchwiseTrainer,
                                             SoftmaxCrossEntropy)
-from xpmir.neural.splade import spladeV2_doc, spladeV2_max
+from xpmir.neural.dual import DotDense, ScheduledFlopsRegularizer
+from xpmir.neural.splade import MaxAggregation, SpladeTextEncoderV2
 from xpmir.papers.helpers.samplers import (
     msmarco_hofstaetter_ensemble_hard_negatives, msmarco_v1_docpairs_sampler,
     msmarco_v1_tests, msmarco_v1_validation_dataset, prepare_collection)
 from xpmir.papers.results import PaperResults
 from xpmir.rankers.full import FullRetriever
 from xpmir.rankers.standard import BM25
+from xpmir.text.huggingface import HFStringTokenizer, HFTokenizer
+from xpmir.text.huggingface.base import HFMaskedLanguageModel
 
 logging.basicConfig(level=logging.INFO)
 
@@ -84,22 +87,24 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     # Define the model and the flop loss for regularization
     # Model of class: DotDense()
     # The parameters are the regularization coeff for the query and document
+    
+    flops = ScheduledFlopsRegularizer(
+        lambda_q=cfg.splade.lambda_q,
+        lambda_d=cfg.splade.lambda_d,
+        lambda_warmup_steps=cfg.splade.lambda_warmup_steps,
+    )
+    tokenizer = HFTokenizer.C(model_id=cfg.base_hf_id)
+
     if cfg.splade.model == "splade_max":
-        spladev2, flops = spladeV2_max(
-            cfg.splade.lambda_q,
-            cfg.splade.lambda_d,
-            cfg.splade.lambda_warmup_steps,
-            hf_id=cfg.base_hf_id,
+        splade_encoder = SpladeTextEncoderV2.C(
+            tokenizer=HFStringTokenizer.C(tokenizer=tokenizer),
+            encoder=HFMaskedLanguageModel.from_pretrained_id(cfg.base_hf_id),
+            aggregation=MaxAggregation.C(),
+            maxlen=256,
         )
-    elif cfg.splade.model == "splade_doc":
-        spladev2, flops = spladeV2_doc(
-            cfg.splade.lambda_q,
-            cfg.splade.lambda_d,
-            cfg.splade.lambda_warmup_steps,
-            hf_id=cfg.base_hf_id,
-        )
+        spladev2 = DotDense(encoder=splade_encoder)
     else:
-        raise NotImplementedError
+        raise NotImplementedError(f'Cannot handle {cfg.splade.model}')
 
     # Sampler
     if cfg.splade.dataset == "":
@@ -124,7 +129,7 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
         )
 
     # hooks for the learner
-    if cfg.splade.model == "splade_doc":
+    if cfg.splade.model == "splade_doc" or spladev2.query_encoder is None:
         hooks = [
             setmeta(
                 DistributedHook(models=[spladev2.encoder]),
