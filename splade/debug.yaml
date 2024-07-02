@@ -7,7 +7,8 @@ base_hf_id: distilbert-base-uncased
 indexation:
     requirements: duration=2 days & cpu(mem=2G)
     training_requirements: duration=4 days & cuda(mem=8G)
-    max_docs: 20_000
+    # This won't be sparse, so index just a few documents
+    max_docs: 100
 
 validation:
     size: 10
