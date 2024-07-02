@@ -1,0 +1,6 @@
+file: experiment.py
+description: |
+    SPLADE v2: Sparse Lexical and Expansion Model for Information Retrieval
+    (Thibault Formal, Carlos Lassance, Benjamin Piwowarski, Stéphane Clinchant).
+    2021. https://arxiv.org/abs/2109.10086
+base_hf_id: distilbert-base-uncased

@@ -3,55 +3,41 @@
 # Benjamin Piwowarski, Stéphane Clinchant), 2021
 # https://arxiv.org/abs/2109.10086
 
-from functools import partial
 import logging
+from functools import partial
 
-from experimaestro import experiment, setmeta
-from experimaestro.launcherfinder import find_launcher
-
-from xpmir.learning.optim import (
-    TensorboardService,
-)
-from xpmir.distributed import DistributedHook
-from xpmir.learning.learner import Learner
-from xpmir.letor.learner import ValidationListener
-from xpmir.index.sparse import (
-    SparseRetriever,
-    SparseRetrieverIndexBuilder,
-)
-from xpmir.letor.distillation.pairwise import (
-    DistillationPairwiseTrainer,
-    MSEDifferenceLoss,
-)
-from xpmir.letor.samplers import PairwiseInBatchNegativesSampler
-from xpmir.papers.cli import paper_command
-from xpmir.letor.trainers.batchwise import BatchwiseTrainer, SoftmaxCrossEntropy
-from xpmir.learning.batchers import PowerAdaptativeBatcher
-from xpmir.rankers.standard import BM25
-from xpmir.neural.splade import spladeV2_max, spladeV2_doc
-from xpmir.papers.results import PaperResults
-from xpmir.papers.helpers.samplers import (
-    msmarco_v1_tests,
-    msmarco_v1_validation_dataset,
-    msmarco_v1_docpairs_sampler,
-    msmarco_hofstaetter_ensemble_hard_negatives,
-    prepare_collection,
-)
-from xpmir.datasets.adapters import RetrieverBasedCollection
-from xpmir.rankers.full import FullRetriever
-from configuration import SPLADE
 import xpmir.interfaces.anserini as anserini
-
+from configuration import SPLADE
+from experimaestro import setmeta
+from experimaestro.launcherfinder import find_launcher
+from xpmir.datasets.adapters import RetrieverBasedCollection
+from xpmir.distributed import DistributedHook
+from xpmir.experiments.ir import IRExperimentHelper, ir_experiment
+from xpmir.index.sparse import SparseRetriever, SparseRetrieverIndexBuilder
+from xpmir.learning.batchers import PowerAdaptativeBatcher
+from xpmir.learning.learner import Learner
+from xpmir.letor.distillation.pairwise import (DistillationPairwiseTrainer,
+                                               MSEDifferenceLoss)
+from xpmir.letor.learner import ValidationListener
+from xpmir.letor.samplers import PairwiseInBatchNegativesSampler
+from xpmir.letor.trainers.batchwise import (BatchwiseTrainer,
+                                            SoftmaxCrossEntropy)
+from xpmir.neural.splade import spladeV2_doc, spladeV2_max
+from xpmir.papers.helpers.samplers import (
+    msmarco_hofstaetter_ensemble_hard_negatives, msmarco_v1_docpairs_sampler,
+    msmarco_v1_tests, msmarco_v1_validation_dataset, prepare_collection)
+from xpmir.papers.results import PaperResults
+from xpmir.rankers.full import FullRetriever
+from xpmir.rankers.standard import BM25
 
 logging.basicConfig(level=logging.INFO)
 
 # Run by:
-# $ xpmir papers splade spladeV2 --configuration config_name experiment/
+# $ experimaestro run-experiment ...
 
 
-def run(
-    xp: experiment, cfg: SPLADE, tensorboard_service: TensorboardService
-) -> PaperResults:
+@ir_experiment()
+def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     """SPLADE model"""
 
     gpu_launcher_learner = find_launcher(cfg.splade.requirements)
@@ -192,7 +178,7 @@ def run(
 
     # submit the learner and build the symbolique link
     outputs = learner.submit(launcher=gpu_launcher_learner)
-    tensorboard_service.add(learner, learner.logpath)
+    xp.tensorboard_service.add(learner, learner.logpath)
 
     # get the trained model
     load_model = (
@@ -234,11 +220,3 @@ def run(
         tb_logs={f"{cfg.splade.model}-{cfg.splade.dataset}-RR@10": learner.logpath},
     )
 
-
-@paper_command(schema=SPLADE, folder=__file__, tensorboard_service=True)
-def cli(xp: experiment, cfg: SPLADE, tensorboard_service: TensorboardService):
-    return run(xp, cfg, tensorboard_service)
-
-
-if __name__ == "__main__":
-    cli()
