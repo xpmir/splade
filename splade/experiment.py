@@ -16,22 +16,32 @@ from xpmir.experiments.ir import IRExperimentHelper, ir_experiment
 from xpmir.index.sparse import SparseRetriever, SparseRetrieverIndexBuilder
 from xpmir.learning.batchers import PowerAdaptativeBatcher
 from xpmir.learning.learner import Learner
-from xpmir.letor.distillation.pairwise import (DistillationPairwiseTrainer,
-                                               MSEDifferenceLoss)
+from xpmir.text.adapters import TopicTextConverter
+from xpmir.letor.distillation.pairwise import (
+    DistillationPairwiseTrainer,
+    MSEDifferenceLoss,
+)
 from xpmir.letor.learner import ValidationListener
 from xpmir.letor.samplers import PairwiseInBatchNegativesSampler
-from xpmir.letor.trainers.batchwise import (BatchwiseTrainer,
-                                            SoftmaxCrossEntropy)
+from xpmir.letor.trainers.batchwise import BatchwiseTrainer, SoftmaxCrossEntropy
 from xpmir.neural.dual import DotDense, ScheduledFlopsRegularizer
 from xpmir.neural.splade import MaxAggregation, SpladeTextEncoderV2
 from xpmir.papers.helpers.samplers import (
-    msmarco_hofstaetter_ensemble_hard_negatives, msmarco_v1_docpairs_sampler,
-    msmarco_v1_tests, msmarco_v1_validation_dataset, prepare_collection)
+    msmarco_hofstaetter_ensemble_hard_negatives,
+    msmarco_v1_docpairs_sampler,
+    msmarco_v1_tests,
+    msmarco_v1_validation_dataset,
+    prepare_collection,
+)
 from xpmir.papers.results import PaperResults
 from xpmir.rankers.full import FullRetriever
 from xpmir.rankers.standard import BM25
-from xpmir.text.huggingface import HFStringTokenizer, HFTokenizer
-from xpmir.text.huggingface.base import HFMaskedLanguageModel
+from xpmir.text.huggingface import (
+    HFStringTokenizer,
+    HFTokenizer,
+    HFTokenizerAdapter,
+    HFMaskedLanguageModel,
+)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -87,7 +97,7 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     # Define the model and the flop loss for regularization
     # Model of class: DotDense()
     # The parameters are the regularization coeff for the query and document
-    
+
     flops = ScheduledFlopsRegularizer(
         lambda_q=cfg.splade.lambda_q,
         lambda_d=cfg.splade.lambda_d,
@@ -97,14 +107,16 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
 
     if cfg.splade.model == "splade_max":
         splade_encoder = SpladeTextEncoderV2.C(
-            tokenizer=HFStringTokenizer.C(tokenizer=tokenizer),
+            tokenizer=HFTokenizerAdapter.C(
+                tokenizer=tokenizer, converter=TopicTextConverter.C()
+            ),
             encoder=HFMaskedLanguageModel.from_pretrained_id(cfg.base_hf_id),
             aggregation=MaxAggregation.C(),
             maxlen=256,
         )
         spladev2 = DotDense(encoder=splade_encoder)
     else:
-        raise NotImplementedError(f'Cannot handle {cfg.splade.model}')
+        raise NotImplementedError(f"Cannot handle {cfg.splade.model}")
 
     # Sampler
     if cfg.splade.dataset == "":
@@ -224,4 +236,3 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
         evaluations=tests,
         tb_logs={f"{cfg.splade.model}-{cfg.splade.dataset}-RR@10": learner.logpath},
     )
-

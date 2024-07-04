@@ -1,6 +1,7 @@
 # The configuration specific for SPLADE_DistilMSE
 id: splade_distilMSE
-title: 'SPLADE_DistilMSE: SPLADEv2 trained with the distillated triplets'
+file: experiment.py
+title: 'SPLADE_DistilMSE: SPLADEv2 trained with the distillation triplets'
 description: |
     Training data from: https://github.com/sebastian-hofstaetter/neural-ranking-kd
 
@@ -24,7 +25,6 @@ splade:
         max_epochs: 1200
         num_warmup_steps: 6000
         lr: 2.0e-5
-        re_no_l2_regularization: [] # All parameters have L2 regularization in SPLADE
 
     model: splade_max
     dataset: hofstaetter_kd_hard_negatives
