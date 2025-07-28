@@ -25,15 +25,22 @@ The papers are described in [Towards Effective and Efficient Sparse Neural Infor
     ```
 </details>
 
+
 ## Run it
+
+
+The repository is build based on the [experimaestro-ir](https://github.com/experimaestro/experimaestro-ir) framework, which is a repository providing many basic key components in doing IR experiments, including learning, indexing, evaluating, etc. Our dataset access is done under the [ir-datasets](https://github.com/allenai/ir_datasets/) package, through the interface of [datamaestro](https://github.com/experimaestro/datamaestro_text).
+
+We use [`uv`](https://docs.astral.sh/uv/) for dependency management. Once installed, you can just use `uv run` within the cloned repository and this will install all the necessary depenencies.
+
+**Important**: When setting the experimaestro experiments, you also need to prepare a `launcher.py` under the folder `~/.config/experimaestro`. Examples could be found [here](https://experimaestro-python.readthedocs.io/en/latest/launchers/).
 
 
 ```sh
 # See below for the list of possible
-experimaestro run-experiment splade/NAME.yaml
+uv run experimaestro run-experiment splade/NAME.yaml
 ```
 
-## Implemented models
-
+The implemented models are:
 - `splade/normal_DistilMSE`: SPLADE-max with distillation (one of the best performing model)
 - `splade/debug`: SPLADE-max with distillation (one of the best performing model), just performing a few learning step and indexing a part of the documents

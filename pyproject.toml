@@ -1,0 +1,19 @@
+[project]
+name = "splade"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "datamaestro-text==2025.7.28",
+    "experimaestro",
+    "experimaestro-ir[anserini,neural]==1.4.0",
+    "pandas>=2.3.1",
+    "tensorboard>=2.20.0",
+]
+
+[tool.uv]
+
+override-dependencies = [
+    "nmslib ; sys_platform == 'never'",
+]

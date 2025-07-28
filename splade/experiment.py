@@ -67,7 +67,7 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     tests = msmarco_v1_tests(cfg.dev_test_size)
 
     # -----The baseline------
-    base_model = BM25()
+    base_model = BM25.C()
     index_builder = anserini.index_builder(launcher=cfg.indexation.launcher)
 
     retrievers = partial(
@@ -83,7 +83,7 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
 
     # This one could be generic for both sparse and dense methods
 
-    ds_val = RetrieverBasedCollection(
+    ds_val = RetrieverBasedCollection.C(
         dataset=ds_val_all,
         retrievers=[retrievers(ds_val_all.documents, k=cfg.retrieval.retTopK)],
     ).submit(launcher=cpu_launcher_index)
@@ -91,14 +91,14 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
 
     # Base retrievers for validation
     # It retrieve all the document of the collection with score 0
-    base_retriever_full = FullRetriever(documents=ds_val.documents)
+    base_retriever_full = FullRetriever.C(documents=ds_val.documents)
 
     # -----Learning to rank component preparation part-----
     # Define the model and the flop loss for regularization
     # Model of class: DotDense()
     # The parameters are the regularization coeff for the query and document
 
-    flops = ScheduledFlopsRegularizer(
+    flops = ScheduledFlopsRegularizer.C(
         lambda_q=cfg.splade.lambda_q,
         lambda_d=cfg.splade.lambda_d,
         lambda_warmup_steps=cfg.splade.lambda_warmup_steps,
@@ -114,29 +114,29 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
             aggregation=MaxAggregation.C(),
             maxlen=256,
         )
-        spladev2 = DotDense(encoder=splade_encoder)
+        spladev2 = DotDense.C(encoder=splade_encoder)
     else:
         raise NotImplementedError(f"Cannot handle {cfg.splade.model}")
 
     # Sampler
     if cfg.splade.dataset == "":
-        splade_sampler = PairwiseInBatchNegativesSampler(
+        splade_sampler = PairwiseInBatchNegativesSampler.C(
             sampler=msmarco_v1_docpairs_sampler(
                 sample_rate=cfg.splade.sample_rate, sample_max=cfg.splade.sample_max
             )
         )
 
-        batchwise_trainer_flops = BatchwiseTrainer(
+        batchwise_trainer_flops = BatchwiseTrainer.C(
             batch_size=cfg.splade.optimization.batch_size,
             sampler=splade_sampler,
-            lossfn=SoftmaxCrossEntropy(),
+            lossfn=SoftmaxCrossEntropy.C(),
             hooks=[flops],
         )
     elif cfg.splade.dataset == "hofstaetter_kd_hard_negatives":
-        batchwise_trainer_flops = DistillationPairwiseTrainer(
+        batchwise_trainer_flops = DistillationPairwiseTrainer.C(
             batch_size=cfg.splade.optimization.batch_size,
             sampler=msmarco_hofstaetter_ensemble_hard_negatives(),
-            lossfn=MSEDifferenceLoss(),
+            lossfn=MSEDifferenceLoss.C(),
             hooks=[flops],
         )
 
@@ -144,20 +144,20 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     if cfg.splade.model == "splade_doc" or spladev2.query_encoder is None:
         hooks = [
             setmeta(
-                DistributedHook(models=[spladev2.encoder]),
+                DistributedHook.C(models=[spladev2.encoder]),
                 True,
             )
         ]
     else:
         hooks = [
             setmeta(
-                DistributedHook(models=[spladev2.encoder, spladev2.query_encoder]),
+                DistributedHook.C(models=[spladev2.encoder, spladev2.query_encoder]),
                 True,
             )
         ]
 
     # establish the validation listener
-    validation = ValidationListener(
+    validation = ValidationListener.C(
         id="bestval",
         dataset=ds_val,
         # a retriever which use the splade model to score all the
@@ -165,7 +165,7 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
         retriever=spladev2.getRetriever(
             base_retriever_full,
             cfg.retrieval.batch_size_full_retriever,
-            PowerAdaptativeBatcher(),
+            PowerAdaptativeBatcher.C(),
             device=device,
         ),
         early_stop=cfg.splade.early_stop,
@@ -174,7 +174,7 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     )
 
     # the learner: Put the components together
-    learner = Learner(
+    learner = Learner.C(
         # Misc settings
         random=random,
         device=device,
@@ -205,9 +205,9 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     )
 
     # build a retriever for the documents
-    sparse_index = SparseRetrieverIndexBuilder(
+    sparse_index = SparseRetrieverIndexBuilder.C(
         batch_size=512,
-        batcher=PowerAdaptativeBatcher(),
+        batcher=PowerAdaptativeBatcher.C(),
         encoder=spladev2.encoder,
         device=device,
         documents=documents,
@@ -216,7 +216,7 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     ).submit(launcher=gpu_launcher_index, init_tasks=[load_model])
 
     # Build the sparse retriever based on the index
-    splade_retriever = SparseRetriever(
+    splade_retriever = SparseRetriever.C(
         index=sparse_index,
         topk=cfg.retrieval.topK,
         batchsize=1,
