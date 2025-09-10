@@ -7,7 +7,8 @@ requires-python = ">=3.11"
 dependencies = [
     "datamaestro-text==2025.7.28",
     "experimaestro",
-    "experimaestro-ir[anserini,neural]==1.4.0",
+    "experimaestro-ir[anserini,neural]",
+    "ir-datasets",
     "pandas>=2.3.1",
     "tensorboard>=2.20.0",
 ]
@@ -17,3 +18,8 @@ dependencies = [
 override-dependencies = [
     "nmslib ; sys_platform == 'never'",
 ]
+
+[tool.uv.sources]
+experimaestro-ir = { git = "https://github.com/experimaestro/experimaestro-ir" }
+ir-datasets = { git = "https://github.com/bpiwowar/ir_datasets.git" }
+datamaestro-text = { git = "https://github.com/experimaestro/datamaestro_text.git" }

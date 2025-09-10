@@ -500,16 +500,12 @@ wheels = [
 
 [[package]]
 name = "datamaestro-text"
-version = "2025.7.28"
-source = { registry = "https://pypi.org/simple" }
+version = "2025.7.29.dev1+g5f2ef0894"
+source = { git = "https://github.com/experimaestro/datamaestro_text.git#5f2ef0894a6ba6b8bfba2deb25b556c02e38b155" }
 dependencies = [
     { name = "attrs" },
     { name = "datamaestro" },
     { name = "ir-datasets" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/1a/24/12682d700669b686f122ee709039e6f4f84970fd7cabe181d978677e605c/datamaestro_text-2025.7.28.tar.gz", hash = "sha256:5f9715700044bde3d72a755095ce3d0ecd28ba76fe097a358e68c6f5d81e45a1", size = 76813, upload-time = "2025-07-28T09:50:19.665Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/72/aa/70cabed18d852b4dd6b6256e53785f846a25f1ccf1733865506f18c2ce7b/datamaestro_text-2025.7.28-py3-none-any.whl", hash = "sha256:38f7548635f0008058181df2da3ae9f5b332af85521a458b32335c7084af2990", size = 91780, upload-time = "2025-07-28T09:50:18.598Z" },
 ]
 
 [[package]]
@@ -578,8 +574,8 @@ wheels = [
 
 [[package]]
 name = "experimaestro-ir"
-version = "1.4.0"
-source = { registry = "https://pypi.org/simple" }
+version = "1.4.1.dev6+g32d327a1a"
+source = { git = "https://github.com/experimaestro/experimaestro-ir#32d327a1ad36cacf18ba7572613777fae2e9f78e" }
 dependencies = [
     { name = "attrs" },
     { name = "datamaestro" },
@@ -592,10 +588,6 @@ dependencies = [
     { name = "omegaconf" },
     { name = "pytorch-lightning" },
     { name = "toma" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/53/85/51e6334a2d6e7ecd7451da4ed19fd24744cbde1b19cbc5103a56620cdcf3/experimaestro_ir-1.4.0.tar.gz", hash = "sha256:d34538a5a0d12ee54f0581c71a7eda91ccd50f26a2b76cf08184d0bfd88bc36d", size = 165992, upload-time = "2025-07-28T09:47:47.036Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/cd/df/5412ef711796fd10c52dcf3e5499e2d8ce03c1dd279f24ae28b56088d1b2/experimaestro_ir-1.4.0-py3-none-any.whl", hash = "sha256:e7210553dbfec17fc4760b2dc6be99aeb220c871e436fc851032013525d789bd", size = 196499, upload-time = "2025-07-28T09:47:45.487Z" },
 ]
 
 [package.optional-dependencies]
@@ -1077,7 +1069,7 @@ wheels = [
 [[package]]
 name = "ir-datasets"
 version = "0.5.11"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/bpiwowar/ir_datasets.git#e4588c55ca8703def355c4e7b655dde528fd27f8" }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "ijson" },
@@ -1094,10 +1086,6 @@ dependencies = [
     { name = "warc3-wet" },
     { name = "warc3-wet-clueweb09" },
     { name = "zlib-state" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/80/c6/f02811c51fec845ee87a10bb3675516a2d71935b203e5ddb80b7eb59b1da/ir_datasets-0.5.11.tar.gz", hash = "sha256:06c90af634ae5063c813286b35065debca1a974d26e136403d899f3ecd7ad463", size = 758463, upload-time = "2025-06-24T07:58:31.375Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/81/38/73fa582d6997362d9b4901b2a8ba1177b2d2896aa59ab8d069a3884e2e0d/ir_datasets-0.5.11-py3-none-any.whl", hash = "sha256:ae78549e5a7fa45e50462b7acb9f0765fc344fec6054108bf3dd063050555206", size = 866095, upload-time = "2025-06-24T07:58:29.958Z" },
 ]
 
 [[package]]
@@ -3078,15 +3066,17 @@ dependencies = [
     { name = "datamaestro-text" },
     { name = "experimaestro" },
     { name = "experimaestro-ir", extra = ["anserini", "neural"] },
+    { name = "ir-datasets" },
     { name = "pandas" },
     { name = "tensorboard" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "datamaestro-text", specifier = "==2025.7.28" },
+    { name = "datamaestro-text", git = "https://github.com/experimaestro/datamaestro_text.git" },
     { name = "experimaestro" },
-    { name = "experimaestro-ir", extras = ["anserini", "neural"], specifier = "==1.4.0" },
+    { name = "experimaestro-ir", extras = ["anserini", "neural"], git = "https://github.com/experimaestro/experimaestro-ir" },
+    { name = "ir-datasets", git = "https://github.com/bpiwowar/ir_datasets.git" },
     { name = "pandas", specifier = ">=2.3.1" },
     { name = "tensorboard", specifier = ">=2.20.0" },
 ]

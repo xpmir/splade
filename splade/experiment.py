@@ -7,6 +7,7 @@ import logging
 from functools import partial
 
 import xpmir.interfaces.anserini as anserini
+from datamaestro_text.data.ir import DocumentStore, FileAccess
 from configuration import SPLADE
 from experimaestro import setmeta
 from experimaestro.launcherfinder import find_launcher
@@ -34,7 +35,7 @@ from xpmir.papers.helpers.samplers import (
     prepare_collection,
 )
 from xpmir.papers.results import PaperResults
-from xpmir.rankers.full import FullRetriever
+from xpmir.rankers.full import FullRetrieverRescorer
 from xpmir.rankers.standard import BM25
 from xpmir.text.huggingface import (
     HFStringTokenizer,
@@ -61,7 +62,9 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     device = cfg.device
     random = cfg.random
 
-    documents = prepare_collection("irds.msmarco-passage.documents")
+    # Use MS-Marco (in-memory amounts to 3.6GiB)
+    documents: DocumentStore = prepare_collection("irds.msmarco-passage.documents")
+    documents.file_access = FileAccess.MEMORY
     ds_val_all = msmarco_v1_validation_dataset(cfg.validation)
 
     tests = msmarco_v1_tests(cfg.dev_test_size)
@@ -88,10 +91,6 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
         retrievers=[retrievers(ds_val_all.documents, k=cfg.retrieval.retTopK)],
     ).submit(launcher=cpu_launcher_index)
     ds_val.documents.in_memory = True
-
-    # Base retrievers for validation
-    # It retrieve all the document of the collection with score 0
-    base_retriever_full = FullRetriever.C(documents=ds_val.documents)
 
     # -----Learning to rank component preparation part-----
     # Define the model and the flop loss for regularization
@@ -162,11 +161,11 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
         dataset=ds_val,
         # a retriever which use the splade model to score all the
         # documents and then do the retrieve
-        retriever=spladev2.getRetriever(
-            base_retriever_full,
-            cfg.retrieval.batch_size_full_retriever,
-            PowerAdaptativeBatcher.C(),
-            device=device,
+        retriever=FullRetrieverRescorer.C(
+            documents=ds_val.documents,
+            scorer=spladev2,
+            batchsize=cfg.retrieval.batch_size_full_retriever,
+            batcher=PowerAdaptativeBatcher.C(),
         ),
         early_stop=cfg.splade.early_stop,
         validation_interval=cfg.splade.validation_interval,
