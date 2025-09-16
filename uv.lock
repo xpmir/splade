@@ -500,8 +500,8 @@ wheels = [
 
 [[package]]
 name = "datamaestro-text"
-version = "2025.7.29.dev1+g5f2ef0894"
-source = { git = "https://github.com/experimaestro/datamaestro_text.git#5f2ef0894a6ba6b8bfba2deb25b556c02e38b155" }
+version = "2025.9.11"
+source = { git = "https://github.com/experimaestro/datamaestro_text.git?rev=adcc9bd2#adcc9bd27f8774c757102f6c4080cec5cb17dcc5" }
 dependencies = [
     { name = "attrs" },
     { name = "datamaestro" },
@@ -537,7 +537,7 @@ wheels = [
 
 [[package]]
 name = "experimaestro"
-version = "1.11.1"
+version = "2.0.0a3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "arpeggio" },
@@ -567,15 +567,15 @@ dependencies = [
     { name = "typing-extensions", marker = "python_full_version < '3.12'" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0e/1f/fa994c1f1866666efa0c04c276b3606d6ca60a20a2ef14ba1c6e4cc76525/experimaestro-1.11.1.tar.gz", hash = "sha256:24e4567a0383177e947a0a3ba4cc710abbc39451b6486896c7b90c4630cf13b6", size = 4324527, upload-time = "2025-07-15T06:21:55.042Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ef/07/85d4adc98585f9ed9c62a6c327288a96b3aa1334187d78a1b06eb7a1d5c5/experimaestro-2.0.0a3.tar.gz", hash = "sha256:ff27368fb9197f9e0aafd4ee05f9c9e45efc1f6d4826308a95824d84c51ebc70", size = 4334574, upload-time = "2025-09-11T19:49:31.028Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ba/50/a5d825d19c90ac99812d48a915d84891989816d13d76e01d91cd6fba6db3/experimaestro-1.11.1-py3-none-any.whl", hash = "sha256:7cea5c799c13b9fc87491d4a520bfb0f0d66df206bd4061e874aad739985c416", size = 4385872, upload-time = "2025-07-15T06:21:53.241Z" },
+    { url = "https://files.pythonhosted.org/packages/52/63/d3e468c4437ad9ed379258c58f2d148d6e0f1d083c625a0f39b3be3fe734/experimaestro-2.0.0a3-py3-none-any.whl", hash = "sha256:055dda96a1de381644791239536dc725b15015a047fb58b83e2ebf30087e60a7", size = 4400401, upload-time = "2025-09-11T19:49:29.139Z" },
 ]
 
 [[package]]
 name = "experimaestro-ir"
-version = "1.4.1.dev6+g32d327a1a"
-source = { git = "https://github.com/experimaestro/experimaestro-ir#32d327a1ad36cacf18ba7572613777fae2e9f78e" }
+version = "1.4.1.dev12+g8d3e99161"
+source = { git = "https://github.com/experimaestro/experimaestro-ir?rev=8d3e991#8d3e99161c0b0beea5a6e8a657c5b4a08176c5c7" }
 dependencies = [
     { name = "attrs" },
     { name = "datamaestro" },
@@ -1051,6 +1051,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f4/0e/8978115ee7a926a5c9100aa6269508a07246c6855d54895a213c8089d84f/impact_index-0.27.3-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:954fc3e3a6cd2d2644398aaa55b75afedd94ed1436488f108d833e67d8d42015", size = 1297538, upload-time = "2025-07-14T17:01:28.764Z" },
     { url = "https://files.pythonhosted.org/packages/89/c9/5a06ac5758be5e2783e70b7b96dc5b70d2910a545c025fa6c66ea7202449/impact_index-0.27.3-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:229bbc28c534d4c9a0ea593774b176ac292fd9566b49071f5eff84b526cbaf58", size = 1503079, upload-time = "2025-07-14T17:01:27.406Z" },
     { url = "https://files.pythonhosted.org/packages/c1/f5/001ed21b486f3f0b2236ecb2b07b9e76dcfdeec5e3dc233bad19b645ae99/impact_index-0.27.3-cp38-abi3-win_amd64.whl", hash = "sha256:cd04acdf2a3d5f237414a06da452e1b332d3f3203f0cf00f9601784129e40a65", size = 1084363, upload-time = "2025-07-14T17:01:32.512Z" },
+]
+
+[[package]]
+name = "iniconfig"
+version = "2.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f2/97/ebf4da567aa6827c909642694d71c9fcf53e5b504f2d96afea02718862f3/iniconfig-2.1.0.tar.gz", hash = "sha256:3abbd2e30b36733fee78f9c7f7308f2d0050e88f0087fd25c2645f63c773e1c7", size = 4793, upload-time = "2025-03-19T20:09:59.721Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2c/e1/e6716421ea10d38022b952c159d5161ca1193197fb744506875fbb87ea7b/iniconfig-2.1.0-py3-none-any.whl", hash = "sha256:9deba5723312380e77435581c6bf4935c94cbfab9b1ed33ef8d238ea168eb760", size = 6050, upload-time = "2025-03-19T20:10:01.071Z" },
 ]
 
 [[package]]
@@ -2118,6 +2127,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pluggy"
+version = "1.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3", size = 69412, upload-time = "2025-05-15T12:30:07.975Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746", size = 20538, upload-time = "2025-05-15T12:30:06.134Z" },
+]
+
+[[package]]
 name = "plumbum"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2486,6 +2504,22 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/aa/1f/ac6a072a1d3c2d50208182ff278e26556bd616460d2883baa7318648248b/pyserini-0.39.0.tar.gz", hash = "sha256:540c03c47b17d72d868ea54002a9ac48fcf1764ecdc5888477ba22d133b0fc46", size = 180252777, upload-time = "2024-09-28T02:06:01.077Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/89/c4/c7c49fceb6752c193a05cc56abb1e4923b044c2303e7b6083e27eb142afa/pyserini-0.39.0-py3-none-any.whl", hash = "sha256:c2d8714f6aef3d0825410c71008e3dca2dea88e25f2b1feecfae347d742c8dac", size = 180315350, upload-time = "2024-09-28T02:05:05.202Z" },
+]
+
+[[package]]
+name = "pytest"
+version = "8.4.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "iniconfig" },
+    { name = "packaging" },
+    { name = "pluggy" },
+    { name = "pygments" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a3/5c/00a0e072241553e1a7496d638deababa67c5058571567b92a7eaa258397c/pytest-8.4.2.tar.gz", hash = "sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01", size = 1519618, upload-time = "2025-09-04T14:34:22.711Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl", hash = "sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79", size = 365750, upload-time = "2025-09-04T14:34:20.226Z" },
 ]
 
 [[package]]
@@ -3063,6 +3097,7 @@ name = "splade"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "datamaestro" },
     { name = "datamaestro-text" },
     { name = "experimaestro" },
     { name = "experimaestro-ir", extra = ["anserini", "neural"] },
@@ -3071,15 +3106,24 @@ dependencies = [
     { name = "tensorboard" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+]
+
 [package.metadata]
 requires-dist = [
-    { name = "datamaestro-text", git = "https://github.com/experimaestro/datamaestro_text.git" },
-    { name = "experimaestro" },
-    { name = "experimaestro-ir", extras = ["anserini", "neural"], git = "https://github.com/experimaestro/experimaestro-ir" },
+    { name = "datamaestro", specifier = ">=1.5.2" },
+    { name = "datamaestro-text", git = "https://github.com/experimaestro/datamaestro_text.git?rev=adcc9bd2" },
+    { name = "experimaestro", specifier = ">=2.0.0a3" },
+    { name = "experimaestro-ir", extras = ["anserini", "neural"], git = "https://github.com/experimaestro/experimaestro-ir?rev=8d3e991" },
     { name = "ir-datasets", git = "https://github.com/bpiwowar/ir_datasets.git" },
     { name = "pandas", specifier = ">=2.3.1" },
     { name = "tensorboard", specifier = ">=2.20.0" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=8.4.2" }]
 
 [[package]]
 name = "srsly"
