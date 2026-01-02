@@ -1,7 +1,7 @@
 id: splade_max-debug
 title: 'SPLADE_max: SPLADEv2 with max aggregation'
 parent: _common
-gpu: true
+use_best_device: true
 base_hf_id: distilbert-base-uncased
 
 indexation:
