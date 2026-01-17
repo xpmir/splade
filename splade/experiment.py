@@ -64,7 +64,7 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
 
     # Use MS-Marco (in-memory amounts to 3.6GiB)
     documents: DocumentStore = prepare_collection("irds.msmarco-passage.documents")
-    documents.file_access = FileAccess.MEMORY
+    documents.file_access = FileAccess.MMAP
     ds_val_all = msmarco_v1_validation_dataset(cfg.validation)
 
     tests = msmarco_v1_tests(cfg.dev_test_size)

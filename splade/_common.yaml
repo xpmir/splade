@@ -4,3 +4,4 @@ description: |
     (Thibault Formal, Carlos Lassance, Benjamin Piwowarski, Stéphane Clinchant).
     2021. https://arxiv.org/abs/2109.10086
 base_hf_id: distilbert-base-uncased
+pre_experiment: pre_experiment.py

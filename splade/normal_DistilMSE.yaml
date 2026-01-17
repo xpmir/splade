@@ -11,6 +11,7 @@ description: |
 
 gpu: true
 base_hf_id: distilbert-base-uncased
+parent: _common
 
 indexation:
     requirements: duration=1 days & cpu(mem=16G)
