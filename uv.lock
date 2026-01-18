@@ -763,7 +763,7 @@ wheels = [
 
 [[package]]
 name = "experimaestro"
-version = "2.0.0b22"
+version = "2.0.0b25"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "arpeggio" },
@@ -793,9 +793,9 @@ dependencies = [
     { name = "uvicorn", extra = ["standard"] },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e6/a0/a810fb1e94084c2150c443aae959907e2bb5f87c4168bb52aaaa72afa97b/experimaestro-2.0.0b22.tar.gz", hash = "sha256:278f998609b70e5446647adeb391ed649a6cc170e55d8d80a2c49f8f9de8c8a1", size = 27626716, upload-time = "2026-01-17T11:54:18.348Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2a/26/031f6bfcaad0bc014712f56126b4bbc417844592587b10ea33bb02bf387d/experimaestro-2.0.0b25.tar.gz", hash = "sha256:0374d0937e7b2ee425f2d71f61ff48df2fd528d57bdc6a83c7f634e2d1262c26", size = 27635127, upload-time = "2026-01-18T14:49:03.643Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/64/82/5532c7d9923422c14f6c84c5f5dd4202bfc1a624e095593a42c3ca759ca6/experimaestro-2.0.0b22-py3-none-any.whl", hash = "sha256:752ed7f2031f66cc29bf901e7609a54d4776f980cb4332d7afef83dd44b3ce46", size = 2777928, upload-time = "2026-01-17T11:54:15.46Z" },
+    { url = "https://files.pythonhosted.org/packages/8e/c4/623b0844ecb92756b90cb5ac803da3996513a08f6cb9586380d2ae250e8e/experimaestro-2.0.0b25-py3-none-any.whl", hash = "sha256:c3e8e873afcac2bf0f4e5e731035b6a708a6d25bde056534ef15661989667343", size = 2786852, upload-time = "2026-01-18T14:49:01.332Z" },
 ]
 
 [package.optional-dependencies]
@@ -3855,7 +3855,7 @@ dev = [
 requires-dist = [
     { name = "datamaestro", specifier = ">=1.6.2" },
     { name = "datamaestro-text", specifier = ">=2026.1.1" },
-    { name = "experimaestro", extras = ["carbon"], specifier = ">=2.0.0b22" },
+    { name = "experimaestro", extras = ["carbon"], specifier = ">=2.0.0b25" },
     { name = "experimaestro-ir", extras = ["anserini", "neural"], git = "https://github.com/experimaestro/experimaestro-ir?rev=f7f1036" },
     { name = "faiss-cpu", specifier = ">=1.13.2" },
     { name = "ir-datasets", git = "https://github.com/bpiwowar/ir_datasets.git" },
