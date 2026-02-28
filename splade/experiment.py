@@ -7,26 +7,24 @@ import logging
 from functools import partial
 
 import xpmir.interfaces.anserini as anserini
-from datamaestro_text.data.ir import DocumentStore, FileAccess
 from configuration import SPLADE
-from experimaestro import setmeta
+from datamaestro_text.data.ir import DocumentStore, FileAccess
 from experimaestro.launcherfinder import find_launcher
+from xpm_torch.batchers import PowerAdaptativeBatcher
+from xpm_torch.learner import Learner
+from xpm_torch.trainers.batchwise import BatchwiseTrainer
+from xpm_torch.losses.batchwise import SoftmaxCrossEntropy
 from xpmir.datasets.adapters import RetrieverBasedCollection
-from xpmir.distributed import DistributedHook
 from xpmir.experiments.ir import IRExperimentHelper, ir_experiment
 from xpmir.index.sparse import SparseRetriever, SparseRetrieverIndexBuilder
-from xpmir.learning.batchers import PowerAdaptativeBatcher
-from xpmir.learning.learner import Learner
-from xpmir.text.adapters import TopicTextConverter
 from xpmir.letor.distillation.pairwise import (
     DistillationPairwiseTrainer,
     MSEDifferenceLoss,
 )
-from xpmir.letor.learner import ValidationListener
 from xpmir.letor.samplers import PairwiseInBatchNegativesSampler
-from xpmir.letor.trainers.batchwise import BatchwiseTrainer, SoftmaxCrossEntropy
-from xpmir.neural.dual import DotDense, ScheduledFlopsRegularizer
-from xpmir.neural.splade import MaxAggregation, SpladeTextEncoderV2
+from xpmir.letor.validation import ValidationListener
+from xpmir.neural.splade import spladeV2_max
+from xpmir.text.huggingface.base import LoadFromHFCheckpoint
 from xpmir.papers.helpers.samplers import (
     msmarco_hofstaetter_ensemble_hard_negatives,
     msmarco_v1_docpairs_sampler,
@@ -35,14 +33,8 @@ from xpmir.papers.helpers.samplers import (
     prepare_collection,
 )
 from xpmir.papers.results import PaperResults
-from xpmir.rankers.full import FullRetrieverRescorer
+from xpmir.rankers.full import FullRetriever, FullRetrieverRescorer
 from xpmir.rankers.standard import BM25
-from xpmir.text.huggingface import (
-    HFStringTokenizer,
-    HFTokenizer,
-    HFTokenizerAdapter,
-    HFMaskedLanguageModel,
-)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -59,7 +51,6 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     cpu_launcher_index = find_launcher(cfg.indexation.requirements)
     gpu_launcher_index = find_launcher(cfg.indexation.training_requirements)
 
-    device = cfg.device
     random = cfg.random
 
     # Use MS-Marco (in-memory amounts to 3.6GiB)
@@ -82,10 +73,6 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     tests.evaluate_retriever(retrievers, cpu_launcher_index)
 
     # Building the validation set of the splade
-    # We cannot use the full document dataset to build the validation set.
-
-    # This one could be generic for both sparse and dense methods
-
     ds_val = RetrieverBasedCollection.C(
         dataset=ds_val_all,
         retrievers=[retrievers(ds_val_all.documents, k=cfg.retrieval.retTopK)],
@@ -94,28 +81,20 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
 
     # -----Learning to rank component preparation part-----
     # Define the model and the flop loss for regularization
-    # Model of class: DotDense()
-    # The parameters are the regularization coeff for the query and document
-
-    flops = ScheduledFlopsRegularizer.C(
-        lambda_q=cfg.splade.lambda_q,
-        lambda_d=cfg.splade.lambda_d,
-        lambda_warmup_steps=cfg.splade.lambda_warmup_steps,
-    )
-    tokenizer = HFTokenizer.C(model_id=cfg.base_hf_id)
 
     if cfg.splade.model == "splade_max":
-        splade_encoder = SpladeTextEncoderV2.C(
-            tokenizer=HFTokenizerAdapter.C(
-                tokenizer=tokenizer, converter=TopicTextConverter.C()
-            ),
-            encoder=HFMaskedLanguageModel.from_pretrained_id(cfg.base_hf_id),
-            aggregation=MaxAggregation.C(),
-            maxlen=256,
+        spladev2, flops = spladeV2_max(
+            cfg.splade.lambda_q,
+            cfg.splade.lambda_d,
+            cfg.splade.lambda_warmup_steps,
+            cfg.base_hf_id,
         )
-        spladev2 = DotDense.C(encoder=splade_encoder)
     else:
         raise NotImplementedError(f"Cannot handle {cfg.splade.model}")
+
+    # Create the init task to load pretrained HF weights
+    hf_encoder = spladev2.encoder.encoder  # HFMaskedLanguageModel (shared)
+    load_hf = LoadFromHFCheckpoint.C(model=hf_encoder)
 
     # Sampler
     if cfg.splade.dataset == "":
@@ -139,28 +118,10 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
             hooks=[flops],
         )
 
-    # hooks for the learner
-    if cfg.splade.model == "splade_doc" or spladev2.query_encoder is None:
-        hooks = [
-            setmeta(
-                DistributedHook.C(models=[spladev2.encoder]),
-                True,
-            )
-        ]
-    else:
-        hooks = [
-            setmeta(
-                DistributedHook.C(models=[spladev2.encoder, spladev2.query_encoder]),
-                True,
-            )
-        ]
-
     # establish the validation listener
     validation = ValidationListener.C(
         id="bestval",
         dataset=ds_val,
-        # a retriever which use the splade model to score all the
-        # documents and then do the retrieve
         retriever=FullRetrieverRescorer.C(
             documents=ds_val.documents,
             scorer=spladev2,
@@ -174,41 +135,27 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
 
     # the learner: Put the components together
     learner = Learner.C(
-        # Misc settings
         random=random,
-        device=device,
-        # How to train the model
         trainer=batchwise_trainer_flops,
-        # the model to be trained
         model=spladev2,
-        # Optimization settings
         optimizers=cfg.splade.optimization.optimizer,
         steps_per_epoch=cfg.splade.optimization.steps_per_epoch,
-        use_fp16=True,
         max_epochs=cfg.splade.optimization.max_epochs,
-        # the listener for the validation
         listeners=[validation],
-        # the hooks
-        hooks=hooks,
+        precision="16-mixed",
     ).tag("model", "splade-v2")
 
     # submit the learner and build the symbolique link
-    outputs = learner.submit(launcher=gpu_launcher_learner)
+    outputs = learner.submit(launcher=gpu_launcher_learner, init_tasks=[load_hf])
     xp.tensorboard_service.add(learner, learner.logpath)
 
     # get the trained model
-    load_model = (
-        outputs.learned_model
-        if cfg.splade.model == "splade_doc"
-        else outputs.listeners["bestval"]["RR@10"]
-    )
+    load_model = outputs.listeners["bestval"]["RR@10"]
 
     # build a retriever for the documents
     sparse_index = SparseRetrieverIndexBuilder.C(
         batch_size=512,
-        batcher=PowerAdaptativeBatcher.C(),
         encoder=spladev2.encoder,
-        device=device,
         documents=documents,
         ordered_index=False,
         max_docs=cfg.indexation.max_docs,
@@ -219,7 +166,7 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
         index=sparse_index,
         topk=cfg.retrieval.topK,
         batchsize=1,
-        encoder=spladev2._query_encoder,
+        encoder=spladev2.query_encoder,
     )
 
     # evaluate the best model
