@@ -6,7 +6,7 @@ base_hf_id: distilbert-base-uncased
 
 indexation:
     requirements: duration=2 days & cpu(mem=2G)
-    training_requirements: duration=4 days & cuda(mem=24G)
+    training_requirements: duration=4 days & gpu(mem=24G)
     indexspec: OPQ4_16,IVF65536_HNSW32,PQ4
     faiss_max_traindocs: 800_000
 
@@ -27,10 +27,10 @@ splade:
     lambda_q: 3.0e-4
     lambda_d: 1.0e-4
     lambda_warmup_steps: 50000
-    requirements: duration=4 days & cuda(mem=40G)
+    requirements: duration=4 days & gpu(mem=40G)
 
 retrieval:
-    requirements: duration=2 days & cuda(mem=24G)
+    requirements: duration=2 days & gpu(mem=24G)
     topK: 1000
     retTopK: 50
     batch_size_full_retriever: 200

@@ -37,7 +37,7 @@ splade:
     requirements: duration=2 days & cuda(mem=24G)
 
 retrieval:
-    requirements: duration=2 days & cuda(mem=24G) & cpu(mem=16G)
+    requirements: duration=2 days & cuda(mem=24G) & cpu(mem=32G)
     topK: 1000
     retTopK: 50
     batch_size_full_retriever: 200

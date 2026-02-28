@@ -6,7 +6,7 @@ base_hf_id: distilbert-base-uncased
 
 indexation:
     requirements: duration=2 days & cpu(mem=2G)
-    training_requirements: duration=4 days & cuda(mem=8G)
+    training_requirements: duration=4 days & gpu(mem=8G)
     # This won't be sparse, so index just a few documents
     max_docs: 100
 
@@ -26,10 +26,10 @@ splade:
     lambda_q: 3.0e-4
     lambda_d: 1.0e-4
     lambda_warmup_steps: 50000
-    requirements: duration=4 days & cuda(mem=8G)
+    requirements: duration=4 days & gpu(mem=8G)
 
 retrieval:
-    requirements: duration=2 days & cuda(mem=8G)
+    requirements: duration=2 days & gpu(mem=8G)
     topK: 1000
     retTopK: 50
     batch_size_full_retriever: 200
