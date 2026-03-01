@@ -33,7 +33,7 @@ from xpmir.papers.helpers.samplers import (
     prepare_collection,
 )
 from xpmir.papers.results import PaperResults
-from xpmir.rankers.full import FullRetriever, FullRetrieverRescorer
+from xpmir.rankers.full import FullRetrieverRescorer
 from xpmir.rankers.standard import BM25
 
 logging.basicConfig(level=logging.INFO)
@@ -100,7 +100,9 @@ def run(xp: IRExperimentHelper, cfg: SPLADE) -> PaperResults:
     if cfg.splade.dataset == "":
         splade_sampler = PairwiseInBatchNegativesSampler.C(
             sampler=msmarco_v1_docpairs_sampler(
-                sample_rate=cfg.splade.sample_rate, sample_max=cfg.splade.sample_max
+                sample_rate=cfg.splade.sample_rate,
+                sample_max=cfg.splade.sample_max,
+                launcher=cpu_launcher_index,
             )
         )
 
